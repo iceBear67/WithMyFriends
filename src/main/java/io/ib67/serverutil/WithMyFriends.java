@@ -1,9 +1,6 @@
 package io.ib67.serverutil;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import io.ib67.Util;
 import io.ib67.util.Pair;
 import io.ib67.util.bukkit.Log;
@@ -24,6 +21,7 @@ import java.util.stream.Collectors;
 
 public class WithMyFriends extends JavaPlugin {
     private SimpleConfig<Config> wrappedConfig;
+    private SimpleConfig<ModuleConfig> wrappedModuleConfig;
     @Getter
     private ModuleManager moduleManager;
     private Map<String, Pair<IModule, CommandHolder>> commandMap = new HashMap<>();
@@ -39,17 +37,32 @@ public class WithMyFriends extends JavaPlugin {
         wrappedConfig = new SimpleConfig<>(getDataFolder(), Config.class);
         wrappedConfig.saveDefault();
         wrappedConfig.reloadConfig();
+
+        wrappedModuleConfig = new SimpleConfig<>(getDataFolder(), ModuleConfig.class, new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeHierarchyAdapter(AbstractModuleConfig.class, new AbstractModuleConfig.Adapter())
+                .create());
+        wrappedModuleConfig.setConfigFileName("modules.json");
+        wrappedModuleConfig.saveDefault();
+        wrappedModuleConfig.reloadConfig();
+
         Objects.requireNonNull(getCommand("wmf")).setExecutor(new CommandExecutor());
         // Load modules
         moduleManager = new ModuleManager(getMainConfig().getEnabledModules());
         moduleManager.loadModules();
-        wrappedConfig.saveConfig();
+
+        wrappedModuleConfig.saveConfig();
         if (getMainConfig().isUpdateCheck()) runUpdateCheck();
     }
 
     @Override
     public void onDisable() {
         wrappedConfig.saveConfig();
+        wrappedModuleConfig.saveConfig();
+    }
+
+    public ModuleConfig getModuleConfig() {
+        return wrappedModuleConfig.get();
     }
 
     public void registerCommand(IModule module, String command, CommandHolder holder) {
