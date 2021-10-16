@@ -14,15 +14,13 @@ has such features:
 
 # Build
 
-WithMyFriends is modular.
-
-Build Library for other plugins(without basic function):
+Building dependency for other plugins(without basic function):
 
 ```
 ./gradlew buildLibrary
 ```
 
-Build Full Version:
+Building full version:
 
 ```
 ./gradlew buildFullPlugin
@@ -31,5 +29,5 @@ Build Full Version:
 # Screenshot
 
 ![](https://upload.cc/i1/2021/10/16/m0B4LZ.png)  
-Some debug info may contains.
+Some debug info may contain.
 
