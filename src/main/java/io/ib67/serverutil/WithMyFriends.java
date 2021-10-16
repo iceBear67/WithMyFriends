@@ -8,6 +8,9 @@ import io.ib67.util.serialization.SimpleConfig;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -19,12 +22,13 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WithMyFriends extends JavaPlugin {
+public class WithMyFriends extends JavaPlugin implements Listener {
     private SimpleConfig<Config> wrappedConfig;
     private SimpleConfig<ModuleConfig> wrappedModuleConfig;
     @Getter
     private ModuleManager moduleManager;
     private Map<String, Pair<IModule, CommandHolder>> commandMap = new HashMap<>();
+    private Map<String, Pair<IModule, CommandHolder>> rootCommandMap = new HashMap<>();
 
     public static WithMyFriends getInstance() {
         return WithMyFriends.getPlugin(WithMyFriends.class); // stop using stupid instance=this.
@@ -53,6 +57,8 @@ public class WithMyFriends extends JavaPlugin {
 
         wrappedModuleConfig.saveConfig();
         if (getMainConfig().isUpdateCheck()) runUpdateCheck();
+
+        getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
@@ -69,9 +75,32 @@ public class WithMyFriends extends JavaPlugin {
         commandMap.put(command, Pair.of(module, holder));
     }
 
-    public Optional<CommandHolder> getCommandHolder(String command) {
-        return Optional.ofNullable(commandMap.get(command).value);
+    public void registerRootCommand(IModule module, String command, CommandHolder holder) {
+        rootCommandMap.put(command, Pair.of(module, holder));
     }
+
+    public Optional<CommandHolder> getCommandHolder(String command) {
+        var a = commandMap.get(command);
+        if (a == null) {
+            return Optional.empty();
+        }
+        if (!moduleManager.isModuleActive(a.key.name())) {
+            return Optional.empty();
+        }
+        return Optional.of(a.value);
+    }
+
+    public Optional<CommandHolder> getRootCommandHolder(String command) {
+        var a = rootCommandMap.get(command);
+        if (a == null) {
+            return Optional.empty();
+        }
+        if (!moduleManager.isModuleActive(a.key.name())) {
+            return Optional.empty();
+        }
+        return Optional.of(a.value);
+    }
+
 
     public Set<String> registeredModuleCommands() {
         return commandMap.entrySet().stream().filter(e -> moduleManager.isModuleActive(e.getValue().key.name())).map(e -> e.getKey()).collect(Collectors.toUnmodifiableSet());
@@ -79,6 +108,22 @@ public class WithMyFriends extends JavaPlugin {
 
     public Config getMainConfig() {
         return wrappedConfig.get();
+    }
+
+    @EventHandler //todo we need a better way to do this.
+    public void onChat(AsyncPlayerChatEvent chatEvent) {
+        var msg = chatEvent.getMessage();
+        var i = msg.indexOf(' ');
+        if (i == -1) {
+            return;
+        }
+        var prefix = msg.substring(i).replaceFirst("/", "").toLowerCase(Locale.ROOT);
+        var args = new LinkedList<>(List.of(msg.substring(i, msg.length() - 1).split(" ")));
+        WithMyFriends.getInstance().getRootCommandHolder(prefix).ifPresentOrElse(commandHolder -> commandHolder.getHandler().accept(args, chatEvent.getPlayer()), () -> {
+            chatEvent.getPlayer().sendMessage(" &c&lError! &r&f未知命令.");
+        });
+        chatEvent.setCancelled(true);
+
     }
 
     private void runUpdateCheck() {
