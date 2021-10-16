@@ -8,7 +8,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 
 public class MessageHoverUtil {
-    private static final HoverEvent HOVER_TIP = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.GREEN + "点击填入输入框!"));
+    private static final HoverEvent HOVER_TIP = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.GREEN + "Click this to fill the box!"));
 
     private MessageHoverUtil() {
     }

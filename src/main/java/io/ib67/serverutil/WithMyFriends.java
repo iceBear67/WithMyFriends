@@ -93,7 +93,7 @@ public class WithMyFriends extends JavaPlugin {
                         }
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.warn("Update check failed: " + e.getLocalizedMessage());
                 }
             } catch (MalformedURLException | URISyntaxException e) {
                 e.printStackTrace();

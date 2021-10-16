@@ -11,7 +11,6 @@ import java.util.Queue;
 
 public class CommandExecutor implements org.bukkit.command.CommandExecutor {
     private static boolean sendHelpMessage(CommandSender sender) {
-        long t = System.currentTimeMillis();
         sender.sendMessage(ColoredString.of(" &f&m-----&r &bWith My Friends &r&f&m-----"));
         sender.sendMessage(ColoredString.of(" &b/util &f--Show this"));
         for (String registeredModuleCommand : WithMyFriends.getInstance().registeredModuleCommands()) {
@@ -19,7 +18,6 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             sender.spigot().sendMessage(CommandMessageSuggester.from(" &b/util " + registeredModuleCommand + " &f--" + holder.getDescription()));
         }
         sender.sendMessage(ColoredString.of(" &f&m-----&r by &aiceBear67 &f&m-----"));
-        sender.sendMessage(String.valueOf(System.currentTimeMillis() - t));
         return true;
     }
 
