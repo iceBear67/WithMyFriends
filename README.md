@@ -1,6 +1,6 @@
 # WithMyFriends
 
-Lightweight server tools for minimal servers.
+Lightweight server tools for minimal servers. [Contributing to us](./CONTRIBUTING.md)
 
 # Why?
 
