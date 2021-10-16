@@ -12,6 +12,22 @@ has such features:
 - **Extensible** It should be extensible, only adding features when we need them.
 - **Easy for Admin** We don't need to configure such complex permissions as CMI
 
+# Build
+
+WithMyFriends is modular.
+
+Build Library for other plugins(without basic function):
+
+```
+./gradlew buildLibrary
+```
+
+Build Full Version:
+
+```
+./gradlew buildFullPlugin
+```
+
 # Screenshot
 
 ![](https://upload.cc/i1/2021/10/16/m0B4LZ.png)  
