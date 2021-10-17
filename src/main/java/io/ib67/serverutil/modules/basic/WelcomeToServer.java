@@ -4,15 +4,13 @@ import com.google.auto.service.AutoService;
 import io.ib67.serverutil.AbstractModuleConfig;
 import io.ib67.serverutil.IModule;
 import io.ib67.serverutil.WithMyFriends;
-import lombok.Getter;
-import lombok.ToString;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 @AutoService(IModule.class)
-public class WelcomeToServer implements IModule<WelcomeToServer.TestConfig>, Listener {
+public class WelcomeToServer implements IModule<AbstractModuleConfig>, Listener {
     private boolean enabled;
 
     @Override
@@ -27,12 +25,6 @@ public class WelcomeToServer implements IModule<WelcomeToServer.TestConfig>, Lis
 
     @Override
     public IModule register() {
-        System.out.println(getConfig());
-        if (getConfig() == null) {
-            saveConfig(new TestConfig());
-        } else {
-            System.out.println(getConfig().sb);
-        }
         Bukkit.getServer().getPluginManager().registerEvents(this, WithMyFriends.getInstance());
         return this;
     }
@@ -54,10 +46,4 @@ public class WelcomeToServer implements IModule<WelcomeToServer.TestConfig>, Lis
         }
     }
 
-    @Getter
-    @ToString
-    public static class TestConfig extends AbstractModuleConfig {
-        int i = 1;
-        String sb = "nc";
-    }
 }
