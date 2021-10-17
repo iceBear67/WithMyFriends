@@ -1,10 +1,13 @@
 package io.ib67.serverutil;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.ib67.Util;
+import io.ib67.serverutil.config.ConfigManager;
 import io.ib67.util.Pair;
 import io.ib67.util.bukkit.Log;
-import io.ib67.util.serialization.SimpleConfig;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,8 +26,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class WithMyFriends extends JavaPlugin implements Listener {
-    private SimpleConfig<Config> wrappedConfig;
-    private SimpleConfig<ModuleConfig> wrappedModuleConfig;
+    //private SimpleConfig<Config> wrappedConfig;
+    //private SimpleConfig<ModuleConfigManager> wrappedModuleConfig;
+    private ConfigManager<AbstractModuleConfig> moduleConfig;
+    private ConfigManager<Config> config;
     @Getter
     private ModuleManager moduleManager;
     private Map<String, Pair<IModule, CommandHolder>> commandMap = new HashMap<>();
@@ -38,24 +43,30 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     public void onEnable() {
         // Load Configuration
         getDataFolder().mkdirs();
-        wrappedConfig = new SimpleConfig<>(getDataFolder(), Config.class);
+        /*wrappedConfig = new SimpleConfig<>(getDataFolder(), Config.class);
         wrappedConfig.saveDefault();
-        wrappedConfig.reloadConfig();
-
-        wrappedModuleConfig = new SimpleConfig<>(getDataFolder(), ModuleConfig.class, new GsonBuilder()
+        wrappedConfig.reloadConfig();*/
+        config = new ConfigManager<>(getDataFolder().toPath().resolve("main.conf"));
+        if (getMainConfig() == null) {
+            config.saveConfig("setting", new Config());
+        }
+      /*  wrappedModuleConfig = new SimpleConfig<>(getDataFolder(), ModuleConfigManager.class, new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeHierarchyAdapter(AbstractModuleConfig.class, new AbstractModuleConfig.Adapter())
                 .create());
         wrappedModuleConfig.setConfigFileName("modules.json");
         wrappedModuleConfig.saveDefault();
-        wrappedModuleConfig.reloadConfig();
+        wrappedModuleConfig.reloadConfig();*/
+        moduleConfig = new ConfigManager<>(getDataFolder().toPath().resolve("modules.conf"));
 
         Objects.requireNonNull(getCommand("wmf")).setExecutor(new CommandExecutor());
         // Load modules
         moduleManager = new ModuleManager(getMainConfig().getEnabledModules());
         moduleManager.loadModules();
 
-        wrappedModuleConfig.saveConfig();
+        //wrappedModuleConfig.saveConfig();
+        moduleConfig.save();
+        config.save();
         if (getMainConfig().isUpdateCheck()) runUpdateCheck();
 
         getServer().getPluginManager().registerEvents(this, this);
@@ -63,12 +74,14 @@ public class WithMyFriends extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        wrappedConfig.saveConfig();
-        wrappedModuleConfig.saveConfig();
+        config.save();
+        moduleConfig.save();
+        //wrappedModuleConfig.saveConfig();
     }
 
-    public ModuleConfig getModuleConfig() {
-        return wrappedModuleConfig.get();
+    public ConfigManager<AbstractModuleConfig> getModuleConfig() {
+        //return wrappedModuleConfig.get();
+        return moduleConfig;
     }
 
     public void registerCommand(IModule module, String command, CommandHolder holder) {
@@ -107,7 +120,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     }
 
     public Config getMainConfig() {
-        return wrappedConfig.get();
+        return config.getConfig("setting", Config.class);
     }
 
     @EventHandler //todo we need a better way to do this.

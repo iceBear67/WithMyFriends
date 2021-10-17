@@ -53,10 +53,10 @@ public class ModuleManager implements IModule {
         public void accept(Queue<String> strings, CommandSender commandSender) {
             if (strings.size() == 0) {
                 // help menu again QAQ
-                commandSender.spigot().sendMessage(CommandMessageSuggester.from(" &b/util manager &f--Show this"));
-                commandSender.spigot().sendMessage(CommandMessageSuggester.from(" &b/util manager enable <module> &f--Enable X Module"));
-                commandSender.spigot().sendMessage(CommandMessageSuggester.from(" &b/util manager disable <module> &f--Disable X Module"));
-                commandSender.spigot().sendMessage(CommandMessageSuggester.from(" &b/util manager mods &f--List Modules"));
+                commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager", "Show this"));
+                commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager enable <module>", "Enable X Module"));
+                commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager disable <module>", "Disable X Module"));
+                commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager mods ", "List Modules"));
                 return;
             }
             var rootArg = strings.poll();

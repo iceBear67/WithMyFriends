@@ -1,9 +1,5 @@
 package io.ib67.serverutil;
 
-import com.google.gson.*;
-
-import java.lang.reflect.Type;
-
 public abstract class AbstractModuleConfig {
     /* public static class Adapter extends TypeAdapter<AbstractModuleConfig> {
          private static final Gson PURE_GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -46,11 +42,13 @@ public abstract class AbstractModuleConfig {
              return capture.resolve(in).data;
          }
      }*/
+    /*
     private static final Gson PURE_GSON = new GsonBuilder().setPrettyPrinting().create();
     private final String implClass;
 
     {
         this.implClass = this.getClass().getName();
+
     }
 
     public static class Adapter implements JsonSerializer<AbstractModuleConfig>, JsonDeserializer<AbstractModuleConfig> {
@@ -78,5 +76,5 @@ public abstract class AbstractModuleConfig {
             return jo;
         }
     }
-
+       */
 }
