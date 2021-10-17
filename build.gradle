@@ -3,6 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version "7.0.0"
+    id 'java-library'
 }
 
 group 'io.ib67'
@@ -14,9 +15,6 @@ targetCompatibility = "11"
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
-    maven {
-        url = "https://repo.codemc.io/repository/nms-local/"
-    }
 }
 sourceSets {
     main {
@@ -44,6 +42,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
     compileOnly 'com.google.auto.service:auto-service:1.0'
     annotationProcessor 'com.google.auto.service:auto-service:1.0'
+    api "org.spongepowered:configurate-hocon:4.0.0"
+
 }
 processResources {
     from(sourceSets.main.resources.srcDirs) {
@@ -53,6 +53,8 @@ processResources {
 }
 shadowJar{
     relocate "io.ib67.util", "io.ib67.serverutil.util"
+    relocate "org.spongepowered.configurate", "io.ib67.serverutil.configurate"
+
 }
 test {
     useJUnitPlatform()

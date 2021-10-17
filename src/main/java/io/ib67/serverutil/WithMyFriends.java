@@ -5,12 +5,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.ib67.Util;
+import io.ib67.serverutil.config.ConfigManager;
 import io.ib67.util.Pair;
 import io.ib67.util.bukkit.Log;
-import io.ib67.util.serialization.SimpleConfig;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -22,11 +25,15 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WithMyFriends extends JavaPlugin {
-    private SimpleConfig<Config> wrappedConfig;
+public class WithMyFriends extends JavaPlugin implements Listener {
+    //private SimpleConfig<Config> wrappedConfig;
+    //private SimpleConfig<ModuleConfigManager> wrappedModuleConfig;
+    private ConfigManager<AbstractModuleConfig> moduleConfig;
+    private ConfigManager<Config> config;
     @Getter
     private ModuleManager moduleManager;
     private Map<String, Pair<IModule, CommandHolder>> commandMap = new HashMap<>();
+    private Map<String, Pair<IModule, CommandHolder>> rootCommandMap = new HashMap<>();
 
     public static WithMyFriends getInstance() {
         return WithMyFriends.getPlugin(WithMyFriends.class); // stop using stupid instance=this.
@@ -36,36 +43,100 @@ public class WithMyFriends extends JavaPlugin {
     public void onEnable() {
         // Load Configuration
         getDataFolder().mkdirs();
-        wrappedConfig = new SimpleConfig<>(getDataFolder(), Config.class);
+        /*wrappedConfig = new SimpleConfig<>(getDataFolder(), Config.class);
         wrappedConfig.saveDefault();
-        wrappedConfig.reloadConfig();
+        wrappedConfig.reloadConfig();*/
+        config = new ConfigManager<>(getDataFolder().toPath().resolve("main.conf"));
+        if (getMainConfig() == null) {
+            config.saveConfig("setting", new Config());
+        }
+      /*  wrappedModuleConfig = new SimpleConfig<>(getDataFolder(), ModuleConfigManager.class, new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeHierarchyAdapter(AbstractModuleConfig.class, new AbstractModuleConfig.Adapter())
+                .create());
+        wrappedModuleConfig.setConfigFileName("modules.json");
+        wrappedModuleConfig.saveDefault();
+        wrappedModuleConfig.reloadConfig();*/
+        moduleConfig = new ConfigManager<>(getDataFolder().toPath().resolve("modules.conf"));
+
         Objects.requireNonNull(getCommand("wmf")).setExecutor(new CommandExecutor());
         // Load modules
         moduleManager = new ModuleManager(getMainConfig().getEnabledModules());
         moduleManager.loadModules();
-        wrappedConfig.saveConfig();
+
+        //wrappedModuleConfig.saveConfig();
+        moduleConfig.save();
+        config.save();
         if (getMainConfig().isUpdateCheck()) runUpdateCheck();
+
+        getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
     public void onDisable() {
-        wrappedConfig.saveConfig();
+        config.save();
+        moduleConfig.save();
+        //wrappedModuleConfig.saveConfig();
+    }
+
+    public ConfigManager<AbstractModuleConfig> getModuleConfig() {
+        //return wrappedModuleConfig.get();
+        return moduleConfig;
     }
 
     public void registerCommand(IModule module, String command, CommandHolder holder) {
         commandMap.put(command, Pair.of(module, holder));
     }
 
-    public Optional<CommandHolder> getCommandHolder(String command) {
-        return Optional.ofNullable(commandMap.get(command).value);
+    public void registerRootCommand(IModule module, String command, CommandHolder holder) {
+        rootCommandMap.put(command, Pair.of(module, holder));
     }
+
+    public Optional<CommandHolder> getCommandHolder(String command) {
+        var a = commandMap.get(command);
+        if (a == null) {
+            return Optional.empty();
+        }
+        if (!moduleManager.isModuleActive(a.key.name())) {
+            return Optional.empty();
+        }
+        return Optional.of(a.value);
+    }
+
+    public Optional<CommandHolder> getRootCommandHolder(String command) {
+        var a = rootCommandMap.get(command);
+        if (a == null) {
+            return Optional.empty();
+        }
+        if (!moduleManager.isModuleActive(a.key.name())) {
+            return Optional.empty();
+        }
+        return Optional.of(a.value);
+    }
+
 
     public Set<String> registeredModuleCommands() {
         return commandMap.entrySet().stream().filter(e -> moduleManager.isModuleActive(e.getValue().key.name())).map(e -> e.getKey()).collect(Collectors.toUnmodifiableSet());
     }
 
     public Config getMainConfig() {
-        return wrappedConfig.get();
+        return config.getConfig("setting", Config.class);
+    }
+
+    @EventHandler //todo we need a better way to do this.
+    public void onChat(AsyncPlayerChatEvent chatEvent) {
+        var msg = chatEvent.getMessage();
+        var i = msg.indexOf(' ');
+        if (i == -1) {
+            return;
+        }
+        var prefix = msg.substring(i).replaceFirst("/", "").toLowerCase(Locale.ROOT);
+        var args = new LinkedList<>(List.of(msg.substring(i, msg.length() - 1).split(" ")));
+        WithMyFriends.getInstance().getRootCommandHolder(prefix).ifPresentOrElse(commandHolder -> commandHolder.getHandler().accept(args, chatEvent.getPlayer()), () -> {
+            chatEvent.getPlayer().sendMessage(" &c&lError! &r&f未知命令.");
+        });
+        chatEvent.setCancelled(true);
+
     }
 
     private void runUpdateCheck() {

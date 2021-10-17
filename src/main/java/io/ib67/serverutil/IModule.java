@@ -1,6 +1,6 @@
 package io.ib67.serverutil;
 
-public interface IModule {
+public interface IModule<T extends AbstractModuleConfig> {
     String name();
 
     String description();
@@ -14,4 +14,5 @@ public interface IModule {
     void enable();
 
     void disable();
+
 }

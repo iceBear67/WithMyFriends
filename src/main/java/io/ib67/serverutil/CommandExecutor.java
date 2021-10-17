@@ -15,7 +15,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
         sender.sendMessage(ColoredString.of(" &b/util &f--Show this"));
         for (String registeredModuleCommand : WithMyFriends.getInstance().registeredModuleCommands()) {
             CommandHolder holder = WithMyFriends.getInstance().getCommandHolder(registeredModuleCommand).orElseThrow(AssertionError::new);
-            sender.spigot().sendMessage(CommandMessageSuggester.from(" &b/util " + registeredModuleCommand + " &f--" + holder.getDescription()));
+            //sender.spigot().sendMessage(CommandMessageSuggester.from(" &b/util " + registeredModuleCommand + " &f--" + holder.getDescription()));
+            sender.spigot().sendMessage(CommandMessageSuggester.from("/util " + registeredModuleCommand, holder.getDescription()));
         }
         sender.sendMessage(ColoredString.of(" &f&m-----&r by &aiceBear67 &f&m-----"));
         return true;

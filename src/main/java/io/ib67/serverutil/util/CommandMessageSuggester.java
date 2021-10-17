@@ -11,11 +11,10 @@ public class CommandMessageSuggester {
     private CommandMessageSuggester() {
     }
 
-    public static BaseComponent[] from(String message) {
-        String[] arr = message.split(" &f--");
-        var cmd = ColoredString.stripColors(arr[0]);
-        var desc = arr[1];
-        var a = MessageHoverUtil.clickableCommandMessage(cmd, arr[0]);
+    public static BaseComponent[] from(String command, String description) {
+        var cmd = command;
+        var desc = description;
+        var a = MessageHoverUtil.clickableCommandMessage(cmd, " &b" + cmd);
         var b = TextComponent.fromLegacyText(ColoredString.from(" &f--").append(desc).toString());
         var c = new ArrayList<>(List.of(a));
         c.addAll(List.of(b));
