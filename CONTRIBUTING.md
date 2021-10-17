@@ -9,8 +9,6 @@ Feel free to PR.
 
 ## For Core Module
 
-1. Make sure your classes are under package `io.ib67.serverutil.modules.basic` or somewhere excluded for `buildLibrary`
-   in buildscript
-2. It's recommended that you should take a look on `io.ib67.serverutil.modules.basic.WelcomeToServer`, which is a good
-   sample for new-contributors.
+1. It's recommended that you should take a look on `withmyfriends.basic.modules.WelcomeToServer`, which is a good sample
+   for new-contributors.
 

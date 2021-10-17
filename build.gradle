@@ -1,61 +1,63 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version "7.0.0"
     id 'java-library'
 }
 
-group 'io.ib67'
-version '1.0-SNAPSHOT'
+def allVersion = "0.0.1"
 
-sourceCompatibility = "11"
-targetCompatibility = "11"
+version allVersion
 
-repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-}
-sourceSets {
-    main {
-        java {
-            exclude 'io/ib67/serverutil/modules/basic/**'
+subprojects {
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'java-library'
+    apply plugin: 'java'
+
+    version allVersion
+    group 'io.ib67.serverutil'
+
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+        maven {
+            url = "https://repo.codemc.io/repository/nms-local/"
         }
     }
-}
-task buildFullPlugin(){
-    doFirst {
-        sourceSets.main.java.excludes.clear();
+    processResources {
+        from(sourceSets.main.resources.srcDirs) {
+            duplicatesStrategy DuplicatesStrategy.INCLUDE
+            filter ReplaceTokens, tokens: [version: version]
+        }
+    }
+    shadowJar{
+        relocate "io.ib67.util", "io.ib67.serverutil.util"
+        relocate "org.spongepowered.configurate", "io.ib67.serverutil.configurate"
+        minimize()
+        destinationDir(new File("../build/libs"))
+        archiveBaseName.set("WithMyFriends")
+    }
+    afterEvaluate {
+    }
+    test {
+        useJUnitPlatform()
+    }
+    dependencies {
+        compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-20210611.090634-18'
+        compileOnly 'org.projectlombok:lombok:1.18.20'
+        annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        compileOnly 'com.google.auto.service:auto-service:1.0'
+        annotationProcessor 'com.google.auto.service:auto-service:1.0'
     }
 }
-task buildLibrary(){
-
-}
-buildFullPlugin.finalizedBy shadowJar
-buildLibrary.finalizedBy shadowJar
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    implementation 'com.github.iceBear67:tools:9d6f9ead1c'
-    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-20210611.090634-18'
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    compileOnly 'com.google.auto.service:auto-service:1.0'
-    annotationProcessor 'com.google.auto.service:auto-service:1.0'
-    api "org.spongepowered:configurate-hocon:4.0.0"
-
-}
-processResources {
-    from(sourceSets.main.resources.srcDirs) {
-        duplicatesStrategy DuplicatesStrategy.INCLUDE
-        filter ReplaceTokens, tokens: [version: version]
+shadowJar {
+    doLast {
+        Files.deleteIfExists(Paths.get("./build/libs/WithMyFriends-$version-all.jar"))
     }
-}
-shadowJar{
-    relocate "io.ib67.util", "io.ib67.serverutil.util"
-    relocate "org.spongepowered.configurate", "io.ib67.serverutil.configurate"
-
-}
-test {
-    useJUnitPlatform()
 }

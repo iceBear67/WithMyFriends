@@ -1,4 +1,4 @@
-name: WithMyFriends
+name: WithMyFriends-Core
 main: io.ib67.serverutil.WithMyFriends
 version: @version@
 description: Simple server utility for mini-scale servers.

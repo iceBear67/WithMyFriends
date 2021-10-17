@@ -1,0 +1,4 @@
+name: WithMyFriends-Basic
+main: withmyfriends.basic.PluginInitializer
+depend: [ WithMyFriends-Core ]
+version: @version@

@@ -1,6 +1,7 @@
 package io.ib67.serverutil;
 
 import io.ib67.util.Pair;
+import io.ib67.util.bukkit.Log;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,12 @@ public class ModuleManager {
         enabledModules.forEach(this::enableModule);
     }
 
-    public void registerModule(String moduleName, IModule module, boolean initialState) {
+    public void registerModule(IModule<?> module) {
+        registerModule(module.name(), module, enabledModules.contains(module.name()));
+    }
+
+    public void registerModule(String moduleName, IModule<?> module, boolean initialState) {
+        Log.info("Detected Module: " + moduleName);
         modules.put(moduleName, Pair.of(false, module));
         if (initialState) enableModule(moduleName);
     }
@@ -68,4 +74,5 @@ public class ModuleManager {
             return Optional.of(pair.value);
         }
     }
+
 }
