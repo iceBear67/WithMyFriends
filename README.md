@@ -1,6 +1,8 @@
 # WithMyFriends
 
-Lightweight server tools for minimal servers. [Contributing to us](./CONTRIBUTING.md)
+Lightweight server tools for minimal servers. [Contributing to us](./CONTRIBUTING.md)  
+
+[Version Strategy](https://github.com/saltedfishclub/documents/blob/main/Evolution.md)
 
 # Why?
 
