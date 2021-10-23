@@ -17,6 +17,7 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'java-library'
     apply plugin: 'java'
+    apply plugin: "maven-publish"
 
     version allVersion
     group 'io.ib67.serverutil'
@@ -43,7 +44,22 @@ subprojects {
         destinationDir(new File("../build/libs"))
         archiveBaseName.set("WithMyFriends")
     }
-    afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                name = "GitHub"
+                url = uri("https://maven.pkg.github.com/iceBear67/WithMyFriends")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                }
+            }
+        }
+        publications {
+            gpr(MavenPublication) {
+                from(components.java)
+            }
+        }
     }
     test {
         useJUnitPlatform()
@@ -55,6 +71,7 @@ subprojects {
         compileOnly 'com.google.auto.service:auto-service:1.0'
         annotationProcessor 'com.google.auto.service:auto-service:1.0'
     }
+
 }
 shadowJar {
     doLast {
