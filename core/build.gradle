@@ -6,6 +6,8 @@ shadowJar {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    implementation 'com.github.iceBear67:tools:9d6f9ead1c'
+    api 'com.github.iceBear67:tools:9d6f9ead1c'
     api "org.spongepowered:configurate-hocon:4.0.0"
+    implementation 'net.jodah:typetools:0.6.3'
+
 }

@@ -74,6 +74,12 @@ public class WithMyFriends extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        getMainConfig().getEnabledModules().clear();
+        getModuleManager().getModules().forEach(e -> {
+            if (e.isEnabled()) {
+                getMainConfig().getEnabledModules().add(e.getModule().name());
+            }
+        });
         config.save();
         moduleConfig.save();
         //wrappedModuleConfig.saveConfig();

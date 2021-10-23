@@ -63,40 +63,42 @@ public class ModuleManager implements IModule {
             boolean enableCmd = rootArg.equalsIgnoreCase("enable");
             if (rootArg.equalsIgnoreCase("enable") || rootArg.equalsIgnoreCase("disable")) {
                 if (strings.size() != 1) {
-                    commandSender.sendMessage(" &cNot enough arguments!");
+                    commandSender.sendMessage(ColoredString.of(" &cNot enough arguments!"));
                     return;
                 }
                 var moduleName = strings.poll();
                 var moduleManager = WithMyFriends.getInstance().getModuleManager();
                 if (!moduleManager.isModuleAvailable(moduleName)) {
-                    commandSender.sendMessage(" &cModule " + moduleName + " not exists!");
+                    commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " not exists!"));
                     return;
                 }
                 if (enableCmd) {
                     if (moduleManager.isModuleActive(moduleName)) {
-                        commandSender.sendMessage(" &cModule " + moduleName + " is already enabled!");
+                        commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " is already enabled!"));
                         return;
                     }
                     moduleManager.enableModule(moduleName);
+                    commandSender.sendMessage(ColoredString.of(" &f Module &b" + moduleName + "&f has enabled."));
                 } else {
                     if (!moduleManager.isModuleActive(moduleName)) {
-                        commandSender.sendMessage(" &cModule " + moduleName + " is already disabled!");
+                        commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " is already disabled!"));
                         return;
                     }
                     moduleManager.disableModule(moduleName);
+                    commandSender.sendMessage(ColoredString.of(" &f Module &b" + moduleName + "&f has disabled."));
                 }
             }
             if (rootArg.equals("mods")) {
                 commandSender.sendMessage(ColoredString.of(" &fAvailable Modules:"));
                 var manager = WithMyFriends.getInstance().getModuleManager();
                 manager.getModules().forEachOrdered(p -> {
-                    ChatColor status = p.key ? ChatColor.GREEN : ChatColor.RED;
+                    ChatColor status = p.isEnabled() ? ChatColor.GREEN : ChatColor.RED;
                     var intro = ColoredString.from(" ")
                             .append(status.toString())
                             .append(POINT + "")
-                            .append(" ").append(p.value.name())
-                            .append(" &8").append(p.value.description()).toString();
-                    commandSender.spigot().sendMessage(MessageHoverUtil.clickableCommandMessage("/util manager " + (p.key ? "disable" : "enable") + " " + p.value.name(), intro));
+                            .append(" ").append(p.getModule().name())
+                            .append(" &8").append(p.getModule().description()).toString();
+                    commandSender.spigot().sendMessage(MessageHoverUtil.clickableCommandMessage("/util manager " + (p.isEnabled() ? "disable" : "enable") + " " + p.getModule().name(), intro));
 
                 });
             }

@@ -27,8 +27,8 @@ public class AllModuleLauncher implements IModule {
         Log.info("Enabling all modules.");
         var m = WithMyFriends.getInstance().getModuleManager();
         m.getModules()
-                .filter(e -> !"all".equals(e.value.name()))
-                .forEach(e -> m.enableModule(e.value.name()));
+                .filter(e -> !"all".equals(e.getModule().name()))
+                .forEach(e -> m.enableModule(e.getModule().name()));
     }
 
     @Override
