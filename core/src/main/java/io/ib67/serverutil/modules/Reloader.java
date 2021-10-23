@@ -22,7 +22,7 @@ public class Reloader extends AbstractModule {
     @Override
     public IModule register() {
         WithMyFriends.getInstance().registerCommand(this, "reload", CommandHolder.builder()
-                .description("Reload All Module Configurations")
+                .description("Reload All Configurations for Modules")
                 .handler((arg, sender) -> {
                     if (arg.size() == 0) {
                         sender.sendMessage(ColoredString.of(" &cUnknown Operation. Usage: &f/util reload <all/config>"));
