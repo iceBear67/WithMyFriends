@@ -15,6 +15,20 @@ has such features:
 - **Easy for Admin** We don't need to configure such complex permissions as CMI
 - **Easy for Developer** Its easy to make modules and you will enjoy the benefit from module system.
 
+# As a dependency
+
+```groovy
+repositories {
+    maven {
+        name = "WithMyFriends"
+        url = "https://maven.pkg.github.com/iceBear67/WithMyFriends"
+    }
+}
+dependencies {
+    compileOnly 'io.ib67.serverutil:core:$VERSION'
+}
+```
+
 # Build
 
 ```
