@@ -61,6 +61,6 @@ public class Teleport extends AbstractModule {
             return;
         }
         ((Player) sender).teleport(destination);
-        sender.sendMessage("&b Teleported!");
+        sender.sendMessage(ColoredString.of("&b Teleported!"));
     }
 }
