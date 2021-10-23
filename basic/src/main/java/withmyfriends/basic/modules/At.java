@@ -50,7 +50,7 @@ public class At extends AbstractModule<At.AtConfig> implements Listener {
         super.enable();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent chatEvent) {
         if (!isEnabled()) return;
         if (chatEvent.getMessage().startsWith("/")) {

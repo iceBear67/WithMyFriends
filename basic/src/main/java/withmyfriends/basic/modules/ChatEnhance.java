@@ -37,14 +37,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 /**
  * @author EvanLuo42
  * @date 2021/10/23 4:17 下午
  */
 public class ChatEnhance extends AbstractModule implements Listener {
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent chatEvent) {
         if (chatEvent.getMessage().startsWith("/")) {
             return;
@@ -52,6 +51,7 @@ public class ChatEnhance extends AbstractModule implements Listener {
 
         TextComponent hoverAction = new TextComponent();
         hoverAction.setText(chatEvent.getPlayer().getDisplayName() + "\n" + chatEvent.getPlayer().getLocale());
+        // TODO
         ClickEvent click = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "menu");
         TextComponent message = new TextComponent();
         message.setText(chatEvent.getPlayer().getDisplayName() + ": ");
@@ -66,7 +66,7 @@ public class ChatEnhance extends AbstractModule implements Listener {
         chatEvent.setCancelled(true);
 
         Bukkit.getServer().getOnlinePlayers().forEach(p -> {
-            p.sendMessage(message.toPlainText());
+            p.spigot().sendMessage(message);
         });
     }
 
