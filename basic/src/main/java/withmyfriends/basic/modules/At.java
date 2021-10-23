@@ -33,7 +33,7 @@ public class At extends AbstractModule<At.AtConfig> implements Listener {
     }
 
     @Override
-    public IModule register() {
+    public IModule<AtConfig> register() {
         Bukkit.getPluginManager().registerEvents(this, WithMyFriends.getInstance());
         return this;
     }
