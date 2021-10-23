@@ -27,8 +27,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class WithMyFriends extends JavaPlugin implements Listener {
-    //private SimpleConfig<Config> wrappedConfig;
-    //private SimpleConfig<ModuleConfigManager> wrappedModuleConfig;
     private ConfigManager<AbstractModuleConfig> moduleConfig;
     private ConfigManager<Config> config;
     @Getter
@@ -44,20 +42,10 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     public void onEnable() {
         // Load Configuration
         getDataFolder().mkdirs();
-        /*wrappedConfig = new SimpleConfig<>(getDataFolder(), Config.class);
-        wrappedConfig.saveDefault();
-        wrappedConfig.reloadConfig();*/
         config = new ConfigManager<>(getDataFolder().toPath().resolve("main.conf"));
         if (getMainConfig() == null) {
             config.saveConfig("setting", new Config());
         }
-      /*  wrappedModuleConfig = new SimpleConfig<>(getDataFolder(), ModuleConfigManager.class, new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeHierarchyAdapter(AbstractModuleConfig.class, new AbstractModuleConfig.Adapter())
-                .create());
-        wrappedModuleConfig.setConfigFileName("modules.json");
-        wrappedModuleConfig.saveDefault();
-        wrappedModuleConfig.reloadConfig();*/
         moduleConfig = new ConfigManager<>(getDataFolder().toPath().resolve("modules.conf"));
 
         Objects.requireNonNull(getCommand("wmf")).setExecutor(new CommandExecutor());
@@ -65,7 +53,6 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         moduleManager = new ModuleManager(getMainConfig().getEnabledModules());
         moduleManager.loadModules();
 
-        //wrappedModuleConfig.saveConfig();
         moduleConfig.save();
         config.save();
         if (getMainConfig().isUpdateCheck()) runUpdateCheck();
@@ -86,11 +73,9 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         config.saveConfig("setting", cfg);
         config.save();
         moduleConfig.save();
-        //wrappedModuleConfig.saveConfig();
     }
 
     public ConfigManager<AbstractModuleConfig> getModuleConfig() {
-        //return wrappedModuleConfig.get();
         return moduleConfig;
     }
 

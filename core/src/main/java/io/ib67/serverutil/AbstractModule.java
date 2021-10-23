@@ -18,7 +18,6 @@ public abstract class AbstractModule<T extends AbstractModuleConfig> implements 
 
     public void saveConfig(T config) {
         WithMyFriends.getInstance().getModuleConfig().saveConfig(this.name(), config);
-        //WithMyFriends.getInstance().getModuleConfig().getModules().put(name(), config);
     }
 
     @Override
