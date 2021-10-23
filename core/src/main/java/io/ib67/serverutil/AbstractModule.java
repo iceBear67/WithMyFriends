@@ -4,7 +4,7 @@ import io.ib67.util.Lazy;
 import net.jodah.typetools.TypeResolver;
 
 public abstract class AbstractModule<T extends AbstractModuleConfig> implements IModule<T> {
-    private final Lazy<?, T> configSupplier = Lazy.by(this::lazyGetConfig);
+    private Lazy<?, T> configSupplier = Lazy.by(this::lazyGetConfig);
     private volatile boolean enabled;
     @SuppressWarnings("unchecked")
     private T lazyGetConfig(Object ignored) {
@@ -28,6 +28,7 @@ public abstract class AbstractModule<T extends AbstractModuleConfig> implements 
 
     @Override
     public void disable() {
+        this.configSupplier = Lazy.by(this::lazyGetConfig);
         this.enabled = false;
     }
 
