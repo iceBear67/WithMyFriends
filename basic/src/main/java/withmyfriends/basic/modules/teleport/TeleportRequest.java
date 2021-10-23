@@ -1,22 +1,28 @@
 package withmyfriends.basic.modules.teleport;
 
 import com.google.auto.service.AutoService;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import io.ib67.serverutil.AbstractModule;
-import io.ib67.serverutil.CommandHolder;
-import io.ib67.serverutil.IModule;
-import io.ib67.serverutil.WithMyFriends;
+import io.ib67.serverutil.*;
+import io.ib67.util.bukkit.ColoredString;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @AutoService(IModule.class)
-public class TeleportRequest extends AbstractModule {
-    private BiMap<UUID, Request> requests = HashBiMap.create(Bukkit.getMaxPlayers());
+public class TeleportRequest extends AbstractModule<TeleportRequest.Config> {
+    private Cache<UUID, Request> requests;
 
     @Override
     public String name() {
@@ -29,7 +35,7 @@ public class TeleportRequest extends AbstractModule {
     }
 
     @Override
-    public IModule register() {
+    public IModule<TeleportRequest.Config> register() {
         WithMyFriends.getInstance().registerRootCommand(this, "tpa",
                 CommandHolder.builder()
                         .description("Send a request of teleporting to them to a player.")
@@ -57,15 +63,69 @@ public class TeleportRequest extends AbstractModule {
     }
 
     private void handleTPA(Queue<String> args, CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ColoredString.of(getConfig().playerOnly));
+            return;
+        }
 
+        if (args.size() != 1 || args.peek().isEmpty()) {
+            sender.sendMessage(ColoredString.of(getConfig().noTarget));
+            return;
+        }
+
+        String playerName = args.poll();
+        Player player = Bukkit.getPlayer(playerName);
+        if (player == null) {
+            sender.sendMessage(ColoredString.of(getConfig().notOnline));
+            return;
+        }
+
+        Player senderPlayer = (Player) sender;
+        requests.put(senderPlayer.getUniqueId(), new Request(player.getUniqueId(), false));
+
+        player.sendMessage(ColoredString.of(String.format(getConfig().onTPRequest, senderPlayer.getName())));
+        senderPlayer.sendMessage(ColoredString.of(String.format(getConfig().requestSent, playerName)));
     }
 
     private void handleTPHere(Queue<String> args, CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ColoredString.of(getConfig().playerOnly));
+            return;
+        }
 
+        if (args.size() != 1 || args.peek().isEmpty()) {
+            sender.sendMessage(ColoredString.of(getConfig().noTarget));
+            return;
+        }
+
+        String playerName = args.poll();
+        Player player = Bukkit.getPlayer(playerName);
+        if (player == null) {
+            sender.sendMessage(ColoredString.of(getConfig().notOnline));
+            return;
+        }
+
+        Player senderPlayer = (Player) sender;
+        requests.put(senderPlayer.getUniqueId(), new Request(player.getUniqueId(), true));
+
+        player.sendMessage(ColoredString.of(String.format(getConfig().onTPHereRequest, senderPlayer.getName())));
+        senderPlayer.sendMessage(ColoredString.of(String.format(getConfig().requestSent, playerName)));
     }
 
     private void handleTPAccept(Queue<String> args, CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ColoredString.of(getConfig().playerOnly));
+            return;
+        }
 
+        Player player = (Player) sender;
+
+        requests.asMap().forEach((key, value) -> {
+            if (value.target == player.getUniqueId()) {
+                if (Bukkit.getPlayer())
+                return;
+            }
+        });
     }
 
     private void handleTPDeny(Queue<String> args, CommandSender sender) {
@@ -74,27 +134,48 @@ public class TeleportRequest extends AbstractModule {
 
     @Override
     public void enable() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(WithMyFriends.getInstance(), () -> {
-            for (Map.Entry<UUID, Request> entry : requests.entrySet()) {
+        if (getConfig() == null) {
+            saveConfig(new Config());
+        }
 
-            }
-        }, 0L, 1000L);
+        requests = CacheBuilder.newBuilder()
+                .concurrencyLevel(4)
+                .expireAfterWrite(getConfig().requestExpireSeconds, TimeUnit.SECONDS)
+                .build();
     }
 
     @Override
     public void disable() {
     }
 
-    public class Request {
-        public final UUID target;
-        public final boolean isTPHere;
-        public final long createTime;
+    @RequiredArgsConstructor
+    public static class Request {
+        private final UUID target;
+        private final boolean isTPHere;
+        private long createTime = System.currentTimeMillis();
+    }
 
-        public Request(UUID targetIn, boolean isTPHereIn) {
-            target = targetIn;
-            isTPHere = isTPHereIn;
+    @ToString
+    @ConfigSerializable
+    public class Config extends AbstractModuleConfig {
+        @Comment("When request expire. (Seconds)")
+        private long requestExpireSeconds = 60;
+        @Comment("Message for /tpa or /tphere have no tagert.")
+        private String noTarget = "&cPlease select a target player.";
+        @Comment("Message for target player is offline.")
+        private String notOnline = "&cTarget player is offline.";
+        @Comment("Message for command block or console runs command.")
+        private String playerOnly = "&cOnly players can use this command.";
+        @Comment("Message for receiving a tp request.")
+        private String onTPRequest = "&ePlayer %d wants to teleport to your position. \n" +
+                "You have %s seconds to key in /tpaccept to accept the request. \n" +
+                "Or key in /tpdeny to cancel the request.";
+        @Comment("Message for receiving a tp here request.")
+        private String onTPHereRequest = "&ePlayer %d wants to teleport you to his position. \n" +
+                "You have %s seconds to key in /tpaccept to accept the request. \n" +
+                "Or key in /tpdeny to cancel the request.";
+        @Comment("Message for sent request.")
+        private String requestSent = "&eYour request have been sent to %d.";
 
-            createTime = System.currentTimeMillis();
-        }
     }
 }
