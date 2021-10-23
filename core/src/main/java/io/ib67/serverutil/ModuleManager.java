@@ -38,6 +38,16 @@ public class ModuleManager {
         }
     }
 
+    public void reloadModule(String moduleName) {
+        if (isModuleActive(moduleName)) {
+            disableModule(moduleName);
+            enableModule(moduleName);
+        } else {
+            enableModule(moduleName);
+            disableModule(moduleName);
+        }
+    }
+
     public void registerModule(IModule<?> module) {
         registerModule(module.name(), module, enabledModules.contains(module.name()));
     }
