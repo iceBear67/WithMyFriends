@@ -25,6 +25,7 @@
 
 package withmyfriends.basic.modules;
 
+import com.google.auto.service.AutoService;
 import io.ib67.serverutil.AbstractModule;
 import io.ib67.serverutil.IModule;
 import io.ib67.serverutil.WithMyFriends;
@@ -42,6 +43,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
  * @author EvanLuo42
  * @date 2021/10/23 4:17 下午
  */
+@AutoService(IModule.class)
 public class ChatEnhance extends AbstractModule implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent chatEvent) {
