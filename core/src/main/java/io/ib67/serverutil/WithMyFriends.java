@@ -77,6 +77,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     public void onDisable() {
         getMainConfig().getEnabledModules().clear();
         var cfg = getMainConfig();
+        cfg.getEnabledModules().clear();
         getModuleManager().getModules().forEach(e -> {
             if (e.isEnabled()) {
                 cfg.getEnabledModules().add(e.getModule().name());
@@ -132,7 +133,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         return config.getConfig("setting", Config.class);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST) //todo we need a better way to do this.
     public void onCommand(PlayerCommandPreprocessEvent chatEvent) {
         var msg = chatEvent.getMessage();
         var i = msg.indexOf(" ");
