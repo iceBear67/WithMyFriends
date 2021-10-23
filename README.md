@@ -11,19 +11,12 @@ has such features:
 - **Easy for Player** They're players, not machines or developers, which means we need *better UX*.
 - **Extensible** It should be extensible, only adding features when we need them.
 - **Easy for Admin** We don't need to configure such complex permissions as CMI
+- **Easy for Developer** Its easy to make modules and you will enjoy the benefit from module system.
 
 # Build
 
-Building dependency for other plugins(without basic function):
-
 ```
-./gradlew buildLibrary
-```
-
-Building full version:
-
-```
-./gradlew buildFullPlugin
+./gradlew shadowjar
 ```
 
 # Screenshot
