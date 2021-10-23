@@ -12,8 +12,9 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -75,11 +76,13 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         getMainConfig().getEnabledModules().clear();
+        var cfg = getMainConfig();
         getModuleManager().getModules().forEach(e -> {
             if (e.isEnabled()) {
-                getMainConfig().getEnabledModules().add(e.getModule().name());
+                cfg.getEnabledModules().add(e.getModule().name());
             }
         });
+        config.saveConfig("setting", cfg);
         config.save();
         moduleConfig.save();
         //wrappedModuleConfig.saveConfig();
@@ -129,19 +132,19 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         return config.getConfig("setting", Config.class);
     }
 
-    @EventHandler //todo we need a better way to do this.
-    public void onChat(AsyncPlayerChatEvent chatEvent) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onCommand(PlayerCommandPreprocessEvent chatEvent) {
         var msg = chatEvent.getMessage();
-        var i = msg.indexOf(' ');
-        if (i == -1) {
-            return;
-        }
-        var prefix = msg.substring(i).replaceFirst("/", "").toLowerCase(Locale.ROOT);
-        var args = new LinkedList<>(List.of(msg.substring(i, msg.length() - 1).split(" ")));
-        WithMyFriends.getInstance().getRootCommandHolder(prefix).ifPresentOrElse(commandHolder -> commandHolder.getHandler().accept(args, chatEvent.getPlayer()), () -> {
-            chatEvent.getPlayer().sendMessage(" &c&lError! &r&f未知命令.");
+        var i = msg.indexOf(" ");
+        int endIndex = i == -1 ? msg.length() - 1 : i;
+        String cmd = msg.startsWith("/") ? msg.replaceFirst("/", "").substring(0, endIndex) : msg.substring(0, endIndex);
+        cmd = cmd.trim();
+        var args = new LinkedList<>(List.of(msg.split(" ")));
+        args.poll();
+        WithMyFriends.getInstance().getRootCommandHolder(cmd.trim()).ifPresent(commandHolder -> {
+            commandHolder.getHandler().accept(args, chatEvent.getPlayer());
+            chatEvent.setCancelled(true);
         });
-        chatEvent.setCancelled(true);
 
     }
 
