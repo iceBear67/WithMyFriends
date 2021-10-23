@@ -57,7 +57,7 @@ public class Teleport extends AbstractModule {
         var name = args.poll();
         var destination = Bukkit.getPlayer(name);
         if (destination == null) {
-            sender.sendMessage(ColoredString.of(" &c" + name + " isn't online"));
+            sender.sendMessage(ColoredString.of(" &c&l" + name + "&r&c isn't online"));
             return;
         }
         ((Player) sender).teleport(destination);
