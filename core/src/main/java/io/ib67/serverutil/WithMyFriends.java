@@ -26,7 +26,10 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WithMyFriends extends JavaPlugin implements Listener {
+/**
+ * WithMyFriends API.
+ */
+public class WithMyFriends extends JavaPlugin implements Listener, WithMyFriendsAPI {
     private ConfigManager<AbstractModuleConfig> moduleConfig;
     private ConfigManager<Config> config;
     @Getter
@@ -34,10 +37,11 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     private Map<String, Pair<IModule, CommandHolder>> commandMap = new HashMap<>();
     private Map<String, Pair<IModule, CommandHolder>> rootCommandMap = new HashMap<>();
 
-    public static WithMyFriends getInstance() {
+    public static WithMyFriendsAPI getInstance() {
         return WithMyFriends.getPlugin(WithMyFriends.class); // stop using stupid instance=this.
     }
 
+    @Deprecated
     @Override
     public void onEnable() {
         // Load Configuration
@@ -75,18 +79,22 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         moduleConfig.save();
     }
 
+    @Override
     public ConfigManager<AbstractModuleConfig> getModuleConfig() {
         return moduleConfig;
     }
 
+    @Override
     public void registerCommand(IModule module, String command, CommandHolder holder) {
         commandMap.put(command, Pair.of(module, holder));
     }
 
+    @Override
     public void registerRootCommand(IModule module, String command, CommandHolder holder) {
         rootCommandMap.put(command, Pair.of(module, holder));
     }
 
+    @Override
     public Optional<CommandHolder> getCommandHolder(String command) {
         var a = commandMap.get(command);
         if (a == null) {
@@ -98,6 +106,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         return Optional.of(a.value);
     }
 
+    @Override
     public Optional<CommandHolder> getRootCommandHolder(String command) {
         var a = rootCommandMap.get(command);
         if (a == null) {
@@ -109,7 +118,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         return Optional.of(a.value);
     }
 
-
+    @Override
     public Set<String> registeredModuleCommands() {
         return commandMap.entrySet().stream().filter(e -> moduleManager.isModuleActive(e.getValue().key.name())).map(e -> e.getKey()).collect(Collectors.toUnmodifiableSet());
     }

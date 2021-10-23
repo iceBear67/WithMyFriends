@@ -31,7 +31,6 @@ import io.ib67.serverutil.IModule;
 import io.ib67.serverutil.WithMyFriends;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -58,7 +57,7 @@ public class ChatEnhance extends AbstractModule implements Listener {
         TextComponent message = new TextComponent();
         message.setText(chatEvent.getPlayer().getDisplayName() + ": ");
         message.setColor(ChatColor.WHITE);
-        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverAction.getHoverEvent().getContents()));
+        //todo message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverAction.getHoverEvent().getContents()));
         message.setClickEvent(click);
         TextComponent content = new TextComponent();
         content.setText(chatEvent.getMessage());
@@ -84,7 +83,7 @@ public class ChatEnhance extends AbstractModule implements Listener {
 
     @Override
     public IModule register() {
-        Bukkit.getPluginManager().registerEvents(this, WithMyFriends.getInstance());
+        Bukkit.getPluginManager().registerEvents(this, WithMyFriends.getInstance().asPlugin());
         return this;
     }
 }

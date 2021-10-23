@@ -15,7 +15,7 @@ public enum CompassManager {
     private Map<UUID, CompassHolder> holders = new ConcurrentHashMap<>(); // it will be used in async schedulers.
 
     void init() {
-        Bukkit.getScheduler().runTaskTimer(WithMyFriends.getInstance(), new Task(), 0L, 5L);
+        Bukkit.getScheduler().runTaskTimer(WithMyFriends.getInstance().asPlugin(), new Task(), 0L, 5L);
     }
 
     // Shortcuts.
