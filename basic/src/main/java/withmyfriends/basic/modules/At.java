@@ -41,11 +41,8 @@ public class At extends AbstractModule<At.AtConfig> implements Listener {
     @Override
     public void enable() {
         if (getConfig() == null) {
-            System.out.println("Save");
             saveConfig(new AtConfig());
         }
-        System.out.println(getConfig());
-        System.out.println(getConfig().hashCode());
         super.enable();
     }
 
