@@ -10,6 +10,8 @@ import io.ib67.util.bukkit.ColoredString;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.function.BiConsumer;
 
@@ -56,12 +58,12 @@ public class ModuleManager implements IModule {
                 commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager", "Show this"));
                 commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager enable <module>", "Enable X Module"));
                 commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager disable <module>", "Disable X Module"));
+                commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager reload <module>", "Reload X Module"));
                 commandSender.spigot().sendMessage(CommandMessageSuggester.from("/util manager mods ", "List Modules"));
                 return;
             }
             var rootArg = strings.poll();
-            boolean enableCmd = rootArg.equalsIgnoreCase("enable");
-            if (rootArg.equalsIgnoreCase("enable") || rootArg.equalsIgnoreCase("disable")) {
+            if (Arrays.stream(OPType.values()).anyMatch(e -> e.cmdArg.equalsIgnoreCase(rootArg))) {
                 if (strings.size() != 1) {
                     commandSender.sendMessage(ColoredString.of(" &cNot enough arguments!"));
                     return;
@@ -72,20 +74,26 @@ public class ModuleManager implements IModule {
                     commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " not exists!"));
                     return;
                 }
-                if (enableCmd) {
-                    if (moduleManager.isModuleActive(moduleName)) {
-                        commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " is already enabled!"));
-                        return;
-                    }
-                    moduleManager.enableModule(moduleName);
-                    commandSender.sendMessage(ColoredString.of(" &f Module &b" + moduleName + "&f has enabled."));
-                } else {
-                    if (!moduleManager.isModuleActive(moduleName)) {
-                        commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " is already disabled!"));
-                        return;
-                    }
-                    moduleManager.disableModule(moduleName);
-                    commandSender.sendMessage(ColoredString.of(" &f Module &b" + moduleName + "&f has disabled."));
+                switch (OPType.valueOf(rootArg.toUpperCase(Locale.ROOT))) {
+                    case ENABLE:
+                        if (moduleManager.isModuleActive(moduleName)) {
+                            commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " is already enabled!"));
+                            return;
+                        }
+                        moduleManager.enableModule(moduleName);
+                        commandSender.sendMessage(ColoredString.of(" &f Module &b" + moduleName + "&f has enabled."));
+                        break;
+                    case DISABLE:
+                        if (!moduleManager.isModuleActive(moduleName)) {
+                            commandSender.sendMessage(ColoredString.of(" &cModule " + moduleName + " is already disabled!"));
+                            return;
+                        }
+                        moduleManager.disableModule(moduleName);
+                        commandSender.sendMessage(ColoredString.of(" &f Module &b" + moduleName + "&f has disabled."));
+                        break;
+                    case RELOAD:
+                        moduleManager.reloadModule(moduleName);
+                        commandSender.sendMessage(ColoredString.of(" &f Module &b" + moduleName + "&f has reloaded."));
                 }
             }
             if (rootArg.equals("mods")) {
@@ -103,6 +111,15 @@ public class ModuleManager implements IModule {
                 });
             }
 
+        }
+
+        private enum OPType {
+            RELOAD("reload"), ENABLE("enable"), DISABLE("disable");
+            String cmdArg;
+
+            OPType(String cmdArg) {
+                this.cmdArg = cmdArg;
+            }
         }
     }
 }

@@ -26,9 +26,10 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WithMyFriends extends JavaPlugin implements Listener {
-    //private SimpleConfig<Config> wrappedConfig;
-    //private SimpleConfig<ModuleConfigManager> wrappedModuleConfig;
+/**
+ * WithMyFriends API.
+ */
+public class WithMyFriends extends JavaPlugin implements Listener, WithMyFriendsAPI {
     private ConfigManager<AbstractModuleConfig> moduleConfig;
     private ConfigManager<Config> config;
     @Getter
@@ -36,28 +37,19 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     private Map<String, Pair<IModule, CommandHolder>> commandMap = new HashMap<>();
     private Map<String, Pair<IModule, CommandHolder>> rootCommandMap = new HashMap<>();
 
-    public static WithMyFriends getInstance() {
+    public static WithMyFriendsAPI getInstance() {
         return WithMyFriends.getPlugin(WithMyFriends.class); // stop using stupid instance=this.
     }
 
+    @Deprecated
     @Override
     public void onEnable() {
         // Load Configuration
         getDataFolder().mkdirs();
-        /*wrappedConfig = new SimpleConfig<>(getDataFolder(), Config.class);
-        wrappedConfig.saveDefault();
-        wrappedConfig.reloadConfig();*/
         config = new ConfigManager<>(getDataFolder().toPath().resolve("main.conf"));
         if (getMainConfig() == null) {
             config.saveConfig("setting", new Config());
         }
-      /*  wrappedModuleConfig = new SimpleConfig<>(getDataFolder(), ModuleConfigManager.class, new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeHierarchyAdapter(AbstractModuleConfig.class, new AbstractModuleConfig.Adapter())
-                .create());
-        wrappedModuleConfig.setConfigFileName("modules.json");
-        wrappedModuleConfig.saveDefault();
-        wrappedModuleConfig.reloadConfig();*/
         moduleConfig = new ConfigManager<>(getDataFolder().toPath().resolve("modules.conf"));
 
         Objects.requireNonNull(getCommand("wmf")).setExecutor(new CommandExecutor());
@@ -65,7 +57,6 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         moduleManager = new ModuleManager(getMainConfig().getEnabledModules());
         moduleManager.loadModules();
 
-        //wrappedModuleConfig.saveConfig();
         moduleConfig.save();
         config.save();
         if (getMainConfig().isUpdateCheck()) runUpdateCheck();
@@ -77,6 +68,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
     public void onDisable() {
         getMainConfig().getEnabledModules().clear();
         var cfg = getMainConfig();
+        cfg.getEnabledModules().clear();
         getModuleManager().getModules().forEach(e -> {
             if (e.isEnabled()) {
                 cfg.getEnabledModules().add(e.getModule().name());
@@ -85,22 +77,24 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         config.saveConfig("setting", cfg);
         config.save();
         moduleConfig.save();
-        //wrappedModuleConfig.saveConfig();
     }
 
+    @Override
     public ConfigManager<AbstractModuleConfig> getModuleConfig() {
-        //return wrappedModuleConfig.get();
         return moduleConfig;
     }
 
+    @Override
     public void registerCommand(IModule module, String command, CommandHolder holder) {
         commandMap.put(command, Pair.of(module, holder));
     }
 
+    @Override
     public void registerRootCommand(IModule module, String command, CommandHolder holder) {
         rootCommandMap.put(command, Pair.of(module, holder));
     }
 
+    @Override
     public Optional<CommandHolder> getCommandHolder(String command) {
         var a = commandMap.get(command);
         if (a == null) {
@@ -112,6 +106,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         return Optional.of(a.value);
     }
 
+    @Override
     public Optional<CommandHolder> getRootCommandHolder(String command) {
         var a = rootCommandMap.get(command);
         if (a == null) {
@@ -123,7 +118,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         return Optional.of(a.value);
     }
 
-
+    @Override
     public Set<String> registeredModuleCommands() {
         return commandMap.entrySet().stream().filter(e -> moduleManager.isModuleActive(e.getValue().key.name())).map(e -> e.getKey()).collect(Collectors.toUnmodifiableSet());
     }
@@ -132,7 +127,7 @@ public class WithMyFriends extends JavaPlugin implements Listener {
         return config.getConfig("setting", Config.class);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST) //todo we need a better way to do this.
     public void onCommand(PlayerCommandPreprocessEvent chatEvent) {
         var msg = chatEvent.getMessage();
         var i = msg.indexOf(" ");

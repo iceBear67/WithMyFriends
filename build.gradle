@@ -17,6 +17,7 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'java-library'
     apply plugin: 'java'
+    apply plugin: "maven-publish"
 
     version allVersion
     group 'io.ib67.serverutil'
@@ -43,19 +44,40 @@ subprojects {
         destinationDir(new File("../build/libs"))
         archiveBaseName.set("WithMyFriends")
     }
-    afterEvaluate {
-    }
     test {
         useJUnitPlatform()
     }
     dependencies {
-        compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-20210611.090634-18'
+        compileOnly 'org.spigotmc:spigot:1.12.2-R0.1-20190527.155359-34'
         compileOnly 'org.projectlombok:lombok:1.18.20'
         annotationProcessor 'org.projectlombok:lombok:1.18.20'
         compileOnly 'com.google.auto.service:auto-service:1.0'
         annotationProcessor 'com.google.auto.service:auto-service:1.0'
     }
+    afterEvaluate {
+        publishing {
+            repositories {
+                maven {
+                    name = "GitHub"
+                    url = uri("https://maven.pkg.github.com/iceBear67/WithMyFriends")
+                    credentials {
+                        username = System.getenv("GITHUB_ACTOR")
+                        password = System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
+            publications {
+                gpr(MavenPublication) {
+                    groupId = project.property("group")
+                    artifactId = project.name
+                    version = project.version
+                    from components.java
+                }
+            }
+        }
+    }
 }
+
 shadowJar {
     doLast {
         Files.deleteIfExists(Paths.get("./build/libs/WithMyFriends-$version-all.jar"))

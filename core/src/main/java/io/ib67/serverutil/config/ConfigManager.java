@@ -10,9 +10,10 @@ import java.nio.file.Path;
 public final class ConfigManager<T> {
     private CommentedConfigurationNode moduleConfigRoot;
     private HoconConfigurationLoader moduleConfigLoader;
-
+    private Path confFile;
     @SneakyThrows
     public ConfigManager(Path confFile) {
+        this.confFile = confFile;
         this.moduleConfigLoader = HoconConfigurationLoader.builder()
                 .path(confFile)
                 .build();
@@ -28,6 +29,14 @@ public final class ConfigManager<T> {
     public <A extends T> A getConfig(String name, Class<A> configClass) {
         var node = moduleConfigRoot.node(name.replaceAll(":", "_")).get(configClass);
         return node;
+    }
+
+    @SneakyThrows
+    public void reload() {
+        this.moduleConfigLoader = HoconConfigurationLoader.builder()
+                .path(confFile)
+                .build();
+        moduleConfigRoot = moduleConfigLoader.load();
     }
 
     @SneakyThrows

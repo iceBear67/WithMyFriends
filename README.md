@@ -1,6 +1,8 @@
 # WithMyFriends
 
-Lightweight server tools for minimal servers. [Contributing to us](./CONTRIBUTING.md)
+Lightweight server tools for minimal servers. [Contributing to us](./CONTRIBUTING.md)  
+
+[Version Strategy](https://github.com/saltedfishclub/documents/blob/main/Evolution.md)
 
 # Why?
 
@@ -12,6 +14,20 @@ has such features:
 - **Extensible** It should be extensible, only adding features when we need them.
 - **Easy for Admin** We don't need to configure such complex permissions as CMI
 - **Easy for Developer** Its easy to make modules and you will enjoy the benefit from module system.
+
+# As a dependency
+
+```groovy
+repositories {
+    maven {
+        name = "WithMyFriends"
+        url = "https://maven.pkg.github.com/iceBear67/WithMyFriends"
+    }
+}
+dependencies {
+    compileOnly 'io.ib67.serverutil:core:$VERSION'
+}
+```
 
 # Build
 

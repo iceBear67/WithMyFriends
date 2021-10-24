@@ -30,7 +30,7 @@ public class WelcomeToServer extends AbstractModule<WelcomeToServer.WelcomeConfi
 
     @Override
     public IModule<WelcomeConfig> register() {
-        Bukkit.getServer().getPluginManager().registerEvents(this, WithMyFriends.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(this, WithMyFriends.getInstance().asPlugin());
         return this;
     }
 
@@ -54,7 +54,7 @@ public class WelcomeToServer extends AbstractModule<WelcomeToServer.WelcomeConfi
             if (getConfig().newWelcome != null)
                 event.setJoinMessage(ColoredString.of(String.format(getConfig().newWelcome, event.getPlayer().getDisplayName())));
             if (getConfig().newPMWelcome != null) {
-                Bukkit.getScheduler().runTask(WithMyFriends.getInstance(), () -> event.getPlayer().sendMessage(ColoredString.of(getConfig().newPMWelcome)));
+                Bukkit.getScheduler().runTask(WithMyFriends.getInstance().asPlugin(), () -> event.getPlayer().sendMessage(ColoredString.of(getConfig().newPMWelcome)));
             }
             if (getConfig().overrideCommon) {
                 return;
