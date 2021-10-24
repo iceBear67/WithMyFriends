@@ -120,12 +120,29 @@ public class TeleportRequest extends AbstractModule<TeleportRequest.Config> {
 
         Player player = (Player) sender;
 
-        requests.asMap().forEach((key, value) -> {
-            if (value.target == player.getUniqueId()) {
-                if (Bukkit.getPlayer())
-                return;
+        for (Map.Entry<UUID, Request> entry : requests.asMap().entrySet()) {
+            Request request = entry.getValue();
+
+            if (request.target == player.getUniqueId()) {
+                Player inviter = Bukkit.getPlayer(entry.getKey());
+
+                if (inviter == null) {
+                    continue;
+                }
+
+                if (!request.isTPHere) {
+                    player.sendMessage(ColoredString.of(getConfig().accepted));
+                    inviter.sendMessage(ColoredString.of(getConfig().successful));
+                    player.teleport(inviter);
+                } else {
+                    player.sendMessage(ColoredString.of(getConfig().accepted));
+                    inviter.sendMessage(ColoredString.of(getConfig().successful));
+                    inviter.teleport(player);
+                }
             }
-        });
+        }
+
+        sender.sendMessage(ColoredString.of(getConfig().noRequestAvailable));
     }
 
     private void handleTPDeny(Queue<String> args, CommandSender sender) {
@@ -152,7 +169,7 @@ public class TeleportRequest extends AbstractModule<TeleportRequest.Config> {
     public static class Request {
         private final UUID target;
         private final boolean isTPHere;
-        private long createTime = System.currentTimeMillis();
+//        private long createTime = System.currentTimeMillis();
     }
 
     @ToString
@@ -176,6 +193,16 @@ public class TeleportRequest extends AbstractModule<TeleportRequest.Config> {
                 "Or key in /tpdeny to cancel the request.";
         @Comment("Message for sent request.")
         private String requestSent = "&eYour request have been sent to %d.";
+        @Comment("Message for no request available.")
+        private String noRequestAvailable = "&cYou have no unconfirmed teleport request.";
+        @Comment("Message for accepted.")
+        private String accepted = "&cYou just accepted the request. Teleporting, Woo~Ho.";
+        @Comment("Message for denied.")
+        private String denied = "&cYou just denied the request. Nothing will be take place.";
+        @Comment("Message for invite successful.")
+        private String successful = "&cYou just accepted the request. Teleporting, Woo~Ho.";
+        @Comment("Message for invite failed.")
+        private String failed = "&cYou just denied the request. Nothing will be take place.";
 
     }
 }
