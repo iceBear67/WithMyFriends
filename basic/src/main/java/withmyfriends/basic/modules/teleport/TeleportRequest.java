@@ -130,15 +130,17 @@ public class TeleportRequest extends AbstractModule<TeleportRequest.Config> {
                     continue;
                 }
 
+                player.sendMessage(ColoredString.of(getConfig().accepted));
+                inviter.sendMessage(ColoredString.of(getConfig().successful));
+
                 if (!request.isTPHere) {
-                    player.sendMessage(ColoredString.of(getConfig().accepted));
-                    inviter.sendMessage(ColoredString.of(getConfig().successful));
                     player.teleport(inviter);
                 } else {
-                    player.sendMessage(ColoredString.of(getConfig().accepted));
-                    inviter.sendMessage(ColoredString.of(getConfig().successful));
                     inviter.teleport(player);
                 }
+                
+                requests.invalidate(inviter.getUniqueId());
+                return;
             }
         }
 
@@ -146,7 +148,31 @@ public class TeleportRequest extends AbstractModule<TeleportRequest.Config> {
     }
 
     private void handleTPDeny(Queue<String> args, CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ColoredString.of(getConfig().playerOnly));
+            return;
+        }
 
+        Player player = (Player) sender;
+
+        for (Map.Entry<UUID, Request> entry : requests.asMap().entrySet()) {
+            Request request = entry.getValue();
+
+            if (request.target == player.getUniqueId()) {
+                Player inviter = Bukkit.getPlayer(entry.getKey());
+
+                if (inviter == null) {
+                    continue;
+                }
+
+                player.sendMessage(ColoredString.of(getConfig().denied));
+                inviter.sendMessage(ColoredString.of(getConfig().failed));
+                requests.invalidate(inviter.getUniqueId());
+                return;
+            }
+        }
+
+        sender.sendMessage(ColoredString.of(getConfig().noRequestAvailable));
     }
 
     @Override
