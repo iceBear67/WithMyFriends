@@ -1,4 +1,4 @@
-package withmyfriends.basic.modules.teleport;
+package withmyfriends.basic.modules;
 
 import com.google.auto.service.AutoService;
 import io.ib67.serverutil.AbstractModule;
