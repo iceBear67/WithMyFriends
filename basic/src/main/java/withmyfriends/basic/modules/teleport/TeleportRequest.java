@@ -123,7 +123,7 @@ public class TeleportRequest extends AbstractModule<TeleportRequest.Config> {
         for (Map.Entry<UUID, Request> entry : requests.asMap().entrySet()) {
             Request request = entry.getValue();
 
-            if (request.target == player.getUniqueId()) {
+            if (request.target.equals(player.getUniqueId())) {
                 Player inviter = Bukkit.getPlayer(entry.getKey());
 
                 if (inviter == null) {
